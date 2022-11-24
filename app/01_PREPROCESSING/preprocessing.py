@@ -45,7 +45,7 @@ logging.info(
 print("Nbr unique games selected : " + str(len(game_list)))
 print("---")
 
-game_list = game_list[0:9]  # Ligne de test pour limiter le sample
+game_list = game_list[0:30]  # Ligne de test pour limiter le sample
 
 print("==> Wrapping data from How Long To Beat | Start")
 handle_hltb = HLTB_handle.HLTB_handle(True, True, True, True)
