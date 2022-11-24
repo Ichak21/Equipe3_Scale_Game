@@ -2,7 +2,11 @@ from howlongtobeatpy import HowLongToBeat, HowLongToBeatEntry
 from itertools import compress
 from pathlib import Path
 import pandas as pd
+from tqdm import tqdm
 import json
+import warnings
+
+warnings.filterwarnings("ignore")
 
 
 class HLTB_handle:
@@ -107,7 +111,9 @@ class HLTB_handle:
 
         game_name_list_unique: list = [*set(game_name_list)]
 
-        for game_name in game_name_list_unique:
+        for game_name in tqdm(
+            game_name_list_unique, desc="HLTB Wrapping ", colour="blue"
+        ):
 
             current_anwser = HowLongToBeat().search(game_name)
             current_row: list = []

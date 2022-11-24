@@ -20,6 +20,7 @@ class IGDB_handle:
     EP_KEYWORD = "keywords.pb"
     EP_THEME = "themes.pb"
     EP_ENGINE = "game_engines.pb"
+    EP_LOCALIZATION = "game_localizations.pb"
     EP_COLLECTION = "collections.pb"
     GAME_OUTPUT = [
         "collection",
@@ -325,10 +326,8 @@ class IGDB_handle:
     def dataForGames(self, game_list: list, file_name: str = None):
         data_game = []
         avancement = 1
-        for game in tqdm(game_list):
-            print(str(avancement) + "/" + str(len(game_list)))
+        for game in tqdm(game_list, desc="IGDB Wrapping ", colour="red"):
             data_game.append(self._dataForGame(game))
-            avancement = avancement + 1
 
         outputFrame = pd.DataFrame(data_game, columns=self.GAME_OUTPUT_DATAFRAME)
 
@@ -353,25 +352,25 @@ class IGDB_handle:
         return genreFrame
 
 
-# if __name__ == "__main__":
-#     CLIENT_ID = "ta1dkgd2vk4qh2guo13snd55lc94qc"
-#     CLIENT_KEY = "6gbxtkoi7m06o8fc7ic806f4bpew71"
-#     handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
-#     TEST = handle.dataForGames(
-#         [
-#             "Rocksmith",
-#             "Devil May Cry 4",
-#             "Lost Horizon",
-#             "Borderlands",
-#             "Homeworld Remastered Collection",
-#             "NBA 2K11",
-#             "Street Fighter X Tekken",
-#             "F.E.A.R. 3",
-#             "Worms Reloaded",
-#         ],
-#         "text.csv",
-#     )
-#     print(TEST[["keywords1", "keywords2", "keywords3", "keywords4", "keywords5"]])
-#     print(TEST[["genre1", "genre2", "genre3"]])
-#     print(TEST[["themes1", "themes2", "themes3", "themes4", "themes5"]])
-#     print(TEST)
+if __name__ == "__main__":
+    CLIENT_ID = "ta1dkgd2vk4qh2guo13snd55lc94qc"
+    CLIENT_KEY = "6gbxtkoi7m06o8fc7ic806f4bpew71"
+    handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
+    TEST = handle.dataForGames(
+        [
+            "Rocksmith",
+            "Devil May Cry 4",
+            "Lost Horizon",
+            "Borderlands",
+            "Homeworld Remastered Collection",
+            "NBA 2K11",
+            "Street Fighter X Tekken",
+            "F.E.A.R. 3",
+            "Worms Reloaded",
+        ],
+        "text.csv",
+    )
+    print(TEST[["keywords1", "keywords2", "keywords3", "keywords4", "keywords5"]])
+    print(TEST[["genre1", "genre2", "genre3"]])
+    print(TEST[["themes1", "themes2", "themes3", "themes4", "themes5"]])
+    print(TEST)

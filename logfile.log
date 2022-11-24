@@ -1,0 +1,7 @@
+INFO 2022-11-24 18:42:15,312 - Chargement dataset DataSet/start_steam-200k.csv | Done
+INFO 2022-11-24 18:42:15,373 - GroupBy ID/Games | (128804, 3)Nbr user_id in dataset : 12393
+INFO 2022-11-24 18:42:15,380 - elect all games with more than 5hours played |Nbr unique games selected : 2339
+INFO 2022-11-24 18:42:21,188 - Wrapping data from How Long To Beat |(9, 18)
+INFO 2022-11-24 18:43:23,293 - Wrapping data from IGDB |(9, 20)
+INFO 2022-11-24 18:43:23,295 - Merge of IGDB and HLTB |(9, 37)
+INFO 2022-11-24 18:43:23,322 - Merge of SteamBehavior and API Data |OUTPUT : (656, 39)Nbr user_id in dataset : 559
