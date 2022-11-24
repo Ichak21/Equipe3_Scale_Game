@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy
 import logging
 from pathlib import Path
 from Utilities._handle_HLTB import HLTB_handle
@@ -45,7 +46,7 @@ logging.info(
 print("Nbr unique games selected : " + str(len(game_list)))
 print("---")
 
-game_list = game_list[0:30]  # Ligne de test pour limiter le sample
+# game_list = game_list[0:30]  # Ligne de test pour limiter le sample
 
 print("==> Wrapping data from How Long To Beat | Start")
 handle_hltb = HLTB_handle.HLTB_handle(True, True, True, True)
