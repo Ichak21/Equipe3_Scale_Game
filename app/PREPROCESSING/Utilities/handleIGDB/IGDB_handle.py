@@ -6,6 +6,9 @@ from igdb.igdbapi_pb2 import ThemeResult
 from igdb.igdbapi_pb2 import GameEngineResult
 from igdb.igdbapi_pb2 import CollectionResult
 from Levenshtein import distance as lev
+from datetime import datetime
+from datetime import date
+import time
 import random
 from tqdm import tqdm
 import numpy as np
@@ -71,7 +74,14 @@ class IGDB_handle:
         access_token = requests.post(auth_endpoint).json()["access_token"]
         self.open_wrapper = IGDBWrapper(CLIENT_ID, access_token)
 
-    def _request_maker(self, fields: list, selections: str, offset: int, limit: int):
+    def _request_maker(
+        self,
+        fields: list,
+        selections: str,
+        offset: int,
+        limit: int,
+        sort_param: str = "",
+    ):
         request = "fields "
         for field in fields:
             if field != fields[len(fields) - 1]:
@@ -80,14 +90,23 @@ class IGDB_handle:
                 request += str(field) + "; "
         request += "offset " + str(offset) + "; "
         request += "limit " + str(limit) + ";"
+        if sort_param != "":
+            request += " sort " + str(sort_param) + ";"
         if selections != "":
             request += " where " + selections + ";"
         return request
 
     def _requesting(
-        self, endpoint: str, fields: list, selection: str, offset: int, limit: int
+        self,
+        endpoint: str,
+        fields: list,
+        selection: str,
+        offset: int,
+        limit: int,
+        sort_param: str = "",
     ):
-        request = self._request_maker(fields, selection, offset, limit)
+        request = self._request_maker(fields, selection, offset, limit, sort_param)
+        print(request)
         return self.open_wrapper.api_request(endpoint, request)
 
     def _parseListToSelection(self, field: str, values: list):
@@ -411,26 +430,71 @@ class IGDB_handle:
 
         return genreFrame
 
+    def searchNoData(self):
+        batch = 1
+        rand = random.randint(0, 200000)
+        mydate = int(time.time() - (2629743 * 480))
+
+        print(mydate)
+
+        myresultat = []
+        while len(myresultat) < 3:
+
+            request = self._requesting(
+                endpoint=self.EP_GAME,
+                fields=["name", "first_release_date"],
+                selection="hypes>0 | rating>75 | aggregated_rating >50 | first_release_date>"
+                + str(mydate),
+                offset=rand + (500 * batch),
+                limit=500,
+            )
+            batch += 1
+
+            response_handle = GameResult()
+            response_handle.ParseFromString(request)
+
+            for game in response_handle.games:
+                myresultat.append(game.name)
+
+        return myresultat[:3]
+
+    def dataForGenre(self):
+        request = self._requesting(
+            endpoint=self.EP_GENRE, fields="*", selection="", offset=0, limit=500
+        )
+
+        response_handle = GenreResult()
+        response_handle.ParseFromString(request)
+
+        myresultat = []
+        for genre in response_handle.genres:
+            myresultat.append([genre.id, genre.name])
+
+        genreFrame = pd.DataFrame(myresultat, columns=["id", "genre"])
+
+        return genreFrame
+
 
 if __name__ == "__main__":
     CLIENT_ID = "ta1dkgd2vk4qh2guo13snd55lc94qc"
     CLIENT_KEY = "6gbxtkoi7m06o8fc7ic806f4bpew71"
     handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
-    print(handle.searchByGenre("Role-playing (RPG)", 3))
-    print(handle.searchByGenre("Role-playing (RPG)", 3))
-    print(handle.searchByGenre("Role-playing (RPG)", 3))
-    print(handle.searchByGenre("Shooter", 3))
-    print(handle.searchByGenre("Shooter", 3))
-    print(handle.searchByGenre("Shooter", 3))
-    print(handle.searchByGenre("Simulator", 3))
-    print(handle.searchByGenre("Simulator", 3))
-    print(handle.searchByGenre("Simulator", 3))
-    print(handle.searchByGenre("Racing", 3))
-    print(handle.searchByGenre("Racing", 3))
-    print(handle.searchByGenre("Racing", 3))
-    print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
-    print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
-    print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
+    print(handle.searchNoData())
+    # print(handle.searchByGenre("Role-playing (RPG)", 3))
+    # print(handle.searchByGenre("Role-playing (RPG)", 3))
+    # print(handle.searchByGenre("Role-playing (RPG)", 3))
+    # print(handle.searchByGenre("Shooter", 3))
+    # print(handle.searchByGenre("Shooter", 3))
+    # print(handle.searchByGenre("Shooter", 3))
+    # print(handle.searchByGenre("Simulator", 3))
+    # print(handle.searchByGenre("Simulator", 3))
+    # print(handle.searchByGenre("Simulator", 3))
+    # print(handle.searchByGenre("Racing", 3))
+    # print(handle.searchByGenre("Racing", 3))
+    # print(handle.searchByGenre("Racing", 3))
+    # print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
+    # print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
+    # print(handle.searchByGenre("Real Time Strategy (RTS)", 3))
     # TEST = handle.dataForGames(
     #     [
     #         "Rocksmith",
