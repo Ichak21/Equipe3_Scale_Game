@@ -7,7 +7,7 @@ from typing import List
 from surprise import Dataset
 from surprise import Reader
 from surprise import SVD
-from userApiHelper import make_predictions, find_mean_rating, make_model
+from userApiHelper import make_predictions, find_mean_rating, make_model, content_based_prediction
 from app.PREPROCESSING.Utilities.handleIGDB.IGDB_handle import IGDB_handle
 
 # import importlib
@@ -16,10 +16,15 @@ from app.PREPROCESSING.Utilities.handleIGDB.IGDB_handle import IGDB_handle
 
 app = FastAPI()
 
-df = pd.read_csv("../../../DataSet/surprise.csv")
+CLIENT_ID = "ta1dkgd2vk4qh2guo13snd55lc94qc"
+CLIENT_KEY = "6gbxtkoi7m06o8fc7ic806f4bpew71"
+
+df = pd.read_csv("./DataSet/surprise.csv")
 df_unique_games = df.game_name.unique()
 
 svd = make_model(df)
+
+content_based_matrix = pd.read_csv('./DataSet/content-based.csv', index_col="01_game_name")
 
 class User_2(BaseModel):
     genre : str
@@ -33,6 +38,10 @@ class User_3(BaseModel):
 class User_4(BaseModel):
     user_id : int
     nb_top_games : int
+    
+class User_5(BaseModel):
+    game : str
+    nb_top_games : int
 
 
 
@@ -40,12 +49,12 @@ class User_4(BaseModel):
 async def test(msg:str):
     return {"message ":"test"}
 
-@app.post('/adduserprediction')
+@app.post('/predictionByGameList')
 async def add_user_prediction(user:User_3):
     global df,svd
     for game in user.games:
         if game not in df_unique_games:
-           raise HTTPException(status_code = 404, detail = f'{game} n\'existe pas')
+           raise HTTPException(status_code = 404, detail = f"{game} n'existe pas")
     new_user_id = df.user_id.max() + 1
     
     df_new_user = pd.DataFrame(data=user.games, columns= ['game_name'])
@@ -64,12 +73,12 @@ async def add_user_prediction(user:User_3):
     return result.to_dict()
 
 
-@app.post('/getuserprediction')
+@app.post('/predictionByUserId')
 async def get_user_prediction(user:User_4):
     global df,svd
     
     if  user.user_id not in df.user_id.values:
-        raise HTTPException(status_code = 404, detail = f'{user.user_id} n\'existe pas')
+        raise HTTPException(status_code = 404, detail = f"{user.user_id} n'existe pas")
     
     result = make_predictions(svd,df,df_unique_games,user.user_id, user.nb_top_games)
    
@@ -77,13 +86,23 @@ async def get_user_prediction(user:User_4):
 
 
 
-@app.post('/getpredictionbygenre')
+@app.post('/predictionByGenre')
 async def get_prediction_by_genre(user:User_2):
-    global df,svd
+    handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
     
-    # if  user.genre not in df.user_id.values:
-    #     raise HTTPException(status_code = 404, detail = f'{user.user_id} n\'existe pas')
+    return handle.searchByGenre(user.genre,user.nb_top_games)
     
-    result = make_predictions(svd,df,df_unique_games,user.user_id, user.nb_top_games)
-   
-    return result.to_dict()
+
+@app.post('/predictionGeneral')
+async def get_prediction_general():
+    handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
+    
+    return None
+    
+@app.post('/predictionbyGame')
+async def get_prediction_by_game(user: User_5):
+    if user.game not in content_based_matrix.index:
+        raise HTTPException(status_code = 404, detail = f'{user.game} n\'existe pas')
+
+    res = content_based_prediction(content_based_matrix, user.game, user.nb_top_games)
+    return res.to_dict()
