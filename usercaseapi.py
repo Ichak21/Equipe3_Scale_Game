@@ -95,11 +95,12 @@ async def get_prediction_by_genre(user:User_2):
 
 @app.post('/predictionGeneral')
 async def get_prediction_general():
-    handle = IGDB_handle(CLIENT_ID, CLIENT_KEY)
+    df2 = pd.read_csv("app/PREPROCESSING/Utilities/_output_handles/popular_api_preprocessing.csv")
+    df_top = df2.loc[df2['17_review_score'] >= 75.0].sort_values(by=["15_count_playing"], ascending=False).head(10)
+
+    return df_top[['01_game_name','17_review_score','15_count_playing']].to_dict()
     
-    return None
-    
-@app.post('/predictionbyGame')
+@app.post('/predictionByGame')
 async def get_prediction_by_game(user: User_5):
     if user.game not in content_based_matrix.index:
         raise HTTPException(status_code = 404, detail = f'{user.game} n\'existe pas')
