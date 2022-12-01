@@ -3,7 +3,7 @@ import numpy
 import logging
 from pathlib import Path
 from Utilities._handle_HLTB import HLTB_handle
-from Utilities._handle_IGDB import IGDB_handle
+from Utilities.handleIGDB import IGDB_handle
 
 Log_Format = "%(levelname)s %(asctime)s - %(message)s"
 logging.basicConfig(
@@ -37,6 +37,7 @@ print("---")
 game_list = [
     *set(df_steam_behavior[df_steam_behavior[" time_is_play"] > 5]["game_name"])
 ]
+
 print("==> Select all games with more than 5hours played | Done")
 logging.info(
     "elect all games with more than 5hours played |"
@@ -50,7 +51,7 @@ print("---")
 
 print("==> Wrapping data from How Long To Beat | Start")
 handle_hltb = HLTB_handle.HLTB_handle(True, True, True, True)
-DF_HLTB = handle_hltb.getDatas(game_list, "HLTB_Preprocessing_wrapped.csv")
+DF_HLTB = handle_hltb.getDatas(game_list, "HLTB_preprocessing_wrapped.csv")
 logging.info("Wrapping data from How Long To Beat |" + str(DF_HLTB.shape))
 print("HLTB DataSet : " + str(DF_HLTB.shape))
 print("---")
@@ -59,7 +60,7 @@ print("==> Wrapping data from IGDB | Start")
 CLIENT_ID = "ta1dkgd2vk4qh2guo13snd55lc94qc"
 CLIENT_KEY = "6gbxtkoi7m06o8fc7ic806f4bpew71"
 handle_igdb = IGDB_handle.IGDB_handle(CLIENT_ID, CLIENT_KEY)
-DF_IGDB = handle_igdb.dataForGames(game_list, "IGDB_Preprocessing_wrapped.csv")
+DF_IGDB = handle_igdb.dataForGames(game_list, "IGDB_preprocessing_wrapped.csv")
 logging.info("Wrapping data from IGDB |" + str(DF_IGDB.shape))
 print("IGDB DataSet : " + str(DF_IGDB.shape))
 print("---")
